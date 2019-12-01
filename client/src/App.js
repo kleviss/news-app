@@ -1,26 +1,55 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+// client/src/App.js
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import React, { Component } from "react";
+import Pusher from "pusher-js";
+import pushid from "pushid";
+import "./App.css";
+
+class App extends Component {
+  state = {
+    newsItems: []
+  };
+
+  componentDidMount() {
+    fetch("http://localhost:5000/live")
+      .then(response => response.json())
+      .then(articles => {
+        this.setState({
+          newsItems: [...this.state.newsItems, ...articles]
+        });
+      })
+      .catch(error => console.log(error));
+
+    const pusher = new Pusher("505288b80955f4406b98", {
+      cluster: "eu",
+      encrypted: true
+    });
+
+    const channel = pusher.subscribe("news-channel");
+    channel.bind("update-news", data => {
+      this.setState({
+        newsItems: [...data.articles, ...this.state.newsItems]
+      });
+    });
+  }
+
+  render() {
+    const NewsItem = (article, id) => (
+      <li key={id}>
+        <a href={`${article.url}`}>{article.title}</a>
+      </li>
+    );
+
+    const newsItems = this.state.newsItems.map(e => NewsItem(e, pushid()));
+
+    return (
+      <div className="App">
+        <h1 className="App-title">Live Bitcoin Feed</h1>
+
+        <ul className="news-items">{newsItems}</ul>
+      </div>
+    );
+  }
 }
 
 export default App;
