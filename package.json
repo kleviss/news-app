@@ -16,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/kleviss/react-to-news/issues"
   },
-  "homepage": "https://github.com/kleviss/react-to-news#readme"
+  "homepage": "https://github.com/kleviss/react-to-news#readme",
+  "dependencies": {
+    "pusher-js": "^5.0.3",
+    "pushid": "^1.0.0"
+  }
 }
